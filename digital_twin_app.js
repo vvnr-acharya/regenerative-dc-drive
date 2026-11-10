@@ -2,10 +2,13 @@
   "use strict";
 
   const $ = (selector) => document.querySelector(selector);
+  const isStaticDemo = /\.github\.io$/i.test(window.location.hostname);
   const state = {
     socket: null,
     reconnectTimer: null,
     reconnectDelay: 1000,
+    demoTimer: null,
+    demoRpm: 0,
     latest: null,
     samples: [],
     chartSamples: [],
@@ -31,6 +34,10 @@
   function navigate() {
     const path = window.location.pathname.replace(/\/+$/, "").split("/").pop();
     const requested = window.location.hash.slice(1) || path || "dashboard";
+    if (isStaticDemo && requested === "admin") {
+      window.location.hash = "dashboard";
+      return;
+    }
     if (requested === "admin" && path !== "admin") {
       window.location.replace("/admin");
       return;
@@ -56,6 +63,10 @@
   }
 
   document.querySelectorAll("[data-view]").forEach((link) => {
+    if (isStaticDemo && link.dataset.view === "admin") {
+      link.hidden = true;
+      return;
+    }
     link.addEventListener("click", (event) => {
       if (link.dataset.view === "admin") return;
       event.preventDefault();
@@ -79,6 +90,17 @@
   }
 
   function connectSocket() {
+    if (isStaticDemo) {
+      setConnection(false, "Static demo");
+      $("#mode-label").textContent = "Browser simulation";
+      $("#operating-mode").disabled = true;
+      $("#page-optimizer .subtitle").textContent = "Explore the interface. ML predictions are available in the live app.";
+      $("#optimizer-form .card-kicker").textContent = "Live backend required";
+      $("#optimizer-form .note").textContent = "This GitHub Pages preview runs in your browser only. The live ML optimizer requires the FastAPI backend.";
+      state.demoTimer = window.setInterval(updateDemoTelemetry, 1000);
+      updateDemoTelemetry();
+      return;
+    }
     if (state.socket && (state.socket.readyState === WebSocket.OPEN || state.socket.readyState === WebSocket.CONNECTING)) return;
     const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
     state.socket = new WebSocket(`${scheme}//${window.location.host}/ws/telemetry`);
@@ -109,6 +131,25 @@
       state.reconnectDelay = Math.min(state.reconnectDelay * 1.7, 10000);
     });
     state.socket.addEventListener("error", () => setConnection(false, "Unavailable"));
+  }
+
+  function updateDemoTelemetry() {
+    const { throttle, brakeDuty } = state.driveControl;
+    const targetRpm = throttle * 3200;
+    if (brakeDuty > 0) state.demoRpm = Math.max(0, state.demoRpm - brakeDuty * 900);
+    else state.demoRpm += (targetRpm - state.demoRpm) * (throttle > 0 ? 0.28 : 0.015);
+    updateTelemetry({
+      timestamp: Date.now() / 1000,
+      mode: "simulation",
+      rpm: state.demoRpm,
+      v_bat: 12 + brakeDuty * 1.8,
+      i_shunt: throttle * 4 + brakeDuty * 3,
+      temp: 35 + throttle * 5 + brakeDuty * 3,
+      duty: brakeDuty,
+      throttle,
+      peak_current_a: throttle * 4 + brakeDuty * 3,
+      peak_kickback_voltage_v: 12 + brakeDuty * 1.8
+    });
   }
 
   function updateTelemetry(data) {
@@ -394,6 +435,10 @@
   async function runOptimizer(event) {
     event.preventDefault();
     const error = $("#optimizer-error");
+    if (isStaticDemo) {
+      error.textContent = "ML predictions need the backend. Open the live tunnel for optimizer results.";
+      return;
+    }
     const button = $("#optimize-button");
     error.textContent = "";
     button.disabled = true;
@@ -488,6 +533,11 @@
   }
 
   async function refreshHealth() {
+    if (isStaticDemo) {
+      $("#backend-health").textContent = "Static demo";
+      $("#model-health").textContent = "Backend required";
+      return;
+    }
     $("#backend-health").textContent = "Checking…";
     try {
       const response = await fetch("/api/status", { cache: "no-store" });
