@@ -65,6 +65,7 @@
   document.querySelectorAll("[data-view]").forEach((link) => {
     if (isStaticDemo && link.dataset.view === "admin") {
       link.hidden = true;
+      link.style.display = "none";
       return;
     }
     link.addEventListener("click", (event) => {
