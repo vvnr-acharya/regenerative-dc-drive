@@ -28,6 +28,7 @@ jobs:
         run: |
           mkdir site
           cp index.html digital_twin_app.js site/
+          cp memory_architecture_lab.html site/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
