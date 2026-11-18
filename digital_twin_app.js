@@ -19,7 +19,8 @@
     brakingResult: null,
     optimizerResult: null,
     adminOverview: null,
-    threeLoadStarted: false
+    threeLoadStarted: false,
+    memory: { d: 0, enable: 0, clear: 0, preset: 0, q: 0, trace: [] }
   };
 
   const pageNames = {
@@ -28,6 +29,7 @@
     optimizer: "Regen optimizer",
     analytics: "Live telemetry",
     safety: "Safety & health",
+    memory: "Memory cell",
     admin: "Admin portal"
   };
 
@@ -802,6 +804,101 @@
     }
   }
 
+  function setupMemory() {
+    const renderToggle = (id, key, value) => {
+      const button = $(id);
+      button.classList.toggle("on", Boolean(value));
+      button.setAttribute("aria-checked", String(Boolean(value)));
+      button.querySelector("span").textContent = `${key} = ${value ? 1 : 0}`;
+    };
+
+    const evaluate = (addTrace = true) => {
+      const memory = state.memory;
+      let mode = "Hold";
+      if (memory.clear) {
+        memory.q = 0;
+        mode = "Cleared";
+      } else if (memory.preset) {
+        memory.q = 1;
+        mode = "Preset";
+      } else if (memory.enable) {
+        memory.q = memory.d;
+        mode = memory.d ? "Latched 1" : "Latched 0";
+      } else {
+        mode = `Holding ${memory.q}`;
+      }
+
+      $("#memory-d-value").textContent = memory.d;
+      $("#memory-en-value").textContent = memory.enable;
+      $("#memory-q-value").textContent = memory.q;
+      $("#memory-q-big").textContent = memory.q;
+      $("#memory-qbar-value").textContent = 1 - memory.q;
+      $("#memory-mode-label").textContent = mode;
+      $("#memory-status").textContent = memory.enable ? "Latch open" : "Hold state";
+      $("#memory-status").classList.toggle("latch", !memory.enable);
+
+      renderToggle("#memory-data", "D", memory.d);
+      renderToggle("#memory-enable", "EN", memory.enable);
+      renderToggle("#memory-clear", "CLR", memory.clear);
+      renderToggle("#memory-preset", "PRE", memory.preset);
+
+      if (addTrace) {
+        memory.trace.unshift({
+          d: memory.d,
+          enable: memory.enable,
+          clear: memory.clear,
+          preset: memory.preset,
+          q: memory.q
+        });
+        memory.trace = memory.trace.slice(0, 12);
+      }
+      const trace = $("#memory-trace");
+      const header = '<div class="trace-row"><strong>#</strong><strong>D</strong><strong>EN</strong><strong>CLR</strong><strong>PRE</strong><strong>Q</strong></div>';
+      trace.innerHTML = header + memory.trace.map((row, index) =>
+        `<div class="trace-row"><strong>${index + 1}</strong><span>${row.d}</span><span>${row.enable}</span><span>${row.clear}</span><span>${row.preset}</span><strong>${row.q}</strong></div>`
+      ).join("");
+    };
+
+    const toggles = [
+      ["#memory-data", "d"],
+      ["#memory-enable", "enable"],
+      ["#memory-clear", "clear"],
+      ["#memory-preset", "preset"]
+    ];
+    toggles.forEach(([selector, key]) => {
+      $(selector).addEventListener("click", () => {
+        state.memory[key] = state.memory[key] ? 0 : 1;
+        if (key === "clear" && state.memory.clear) state.memory.preset = 0;
+        if (key === "preset" && state.memory.preset) state.memory.clear = 0;
+        evaluate(true);
+      });
+    });
+
+    $("#memory-clock").addEventListener("click", () => {
+      state.memory.enable = 1;
+      evaluate(true);
+      window.clearTimeout(state.memory.pulseTimer);
+      state.memory.pulseTimer = window.setTimeout(() => {
+        state.memory.enable = 0;
+        evaluate(true);
+      }, 650);
+      $("#memory-feedback").textContent = "EN pulsed HIGH";
+    });
+    $("#memory-reset").addEventListener("click", () => {
+      window.clearTimeout(state.memory.pulseTimer);
+      state.memory.d = 0;
+      state.memory.enable = 0;
+      state.memory.clear = 0;
+      state.memory.preset = 0;
+      state.memory.q = 0;
+      state.memory.trace = [];
+      $("#memory-feedback").textContent = "Cell reset";
+      evaluate(true);
+    });
+
+    evaluate(true);
+  }
+
   function setupSafety() {
     $("#refresh-health").addEventListener("click", refreshHealth);
     $("#refresh-admin").addEventListener("click", refreshAdmin);
@@ -1310,6 +1407,7 @@
   setupControls();
   setupBrakingCalculator();
   setupOptimizer();
+  setupMemory();
   setupSafety();
   setupMotor();
   refreshHealth();
