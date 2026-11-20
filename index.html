@@ -191,37 +191,6 @@
     .safety-banner p { font-size: 11px; color: #6d7a71; margin-bottom: 0; }
     .empty-state { color: var(--muted); font-size: 12px; padding: 20px 0; }
     .footer-note { color: #9aa39b; font-size: 10px; text-align: center; margin: 30px 0 0; }
-    .memory-grid { display: grid; grid-template-columns: minmax(280px,.72fr) minmax(0,1.28fr); gap: 18px; }
-    .memory-controls { display: grid; gap: 14px; }
-    .logic-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 10px 8px 13px; border: 1px solid var(--line); border-radius: 12px; background: #fbfaf6; }
-    .logic-label strong { display: block; font-size: 12px; }
-    .logic-label span { display: block; color: var(--muted); font-size: 10px; margin-top: 3px; }
-    .logic-toggle { width: 62px; height: 34px; border: 1px solid var(--line); border-radius: 999px; background: #eff0e8; cursor: pointer; position: relative; transition: background .16s, border-color .16s; }
-    .logic-toggle::after { content: ""; position: absolute; width: 26px; height: 26px; left: 3px; top: 3px; border-radius: 50%; background: white; box-shadow: 0 2px 8px rgba(49,66,55,.12); transition: transform .16s; }
-    .logic-toggle.on { background: #79ad91; border-color: #79ad91; }
-    .logic-toggle.on::after { transform: translateX(28px); }
-    .logic-toggle span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-    .memory-stage { min-height: 306px; display: grid; grid-template-columns: 150px minmax(150px,1fr) 150px; align-items: center; gap: 14px; background: radial-gradient(circle at 50% 48%,#fffefa 0,#f7f4e9 78%,#f1eee3 100%); overflow: hidden; }
-    .memory-source, .memory-output { display: grid; gap: 9px; z-index: 2; }
-    .logic-chip { border: 1px solid #dde1d5; border-radius: 14px; background: rgba(255,254,250,.92); padding: 13px 10px; text-align: center; box-shadow: 0 8px 20px rgba(49,66,55,.055); }
-    .logic-chip span { display: block; color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .12em; }
-    .logic-chip strong { display: block; margin-top: 5px; font-size: 25px; font-variant-numeric: tabular-nums; }
-    .memory-cell { height: 192px; border: 2px solid #91ad9c; border-radius: 20px; background: rgba(255,254,250,.78); display: grid; place-items: center; position: relative; box-shadow: inset 0 0 25px rgba(105,169,135,.08); }
-    .memory-cell::before, .memory-cell::after { content: ""; position: absolute; height: 2px; width: 30px; background: #91ad9c; top: 50%; }
-    .memory-cell::before { left: -32px; }
-    .memory-cell::after { right: -32px; }
-    .memory-cell-inner { text-align: center; }
-    .memory-cell-inner span { display: block; color: #74837b; font-size: 10px; text-transform: uppercase; letter-spacing: .11em; }
-    .memory-cell-inner strong { display: block; color: #3c7258; font-size: 48px; line-height: 1; margin: 10px 0 8px; }
-    .memory-cell-inner small { color: var(--muted); font-size: 10px; }
-    .memory-trace { max-height: 215px; overflow: auto; }
-    .trace-row { display: grid; grid-template-columns: 36px repeat(5,1fr); gap: 6px; align-items: center; padding: 7px 2px; border-bottom: 1px solid #f0f0e9; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
-    .trace-row:first-child { color: #8b968e; }
-    .trace-row strong { color: var(--ink); }
-    .truth-table { width: 100%; }
-    .truth-table th, .truth-table td { text-align: center; }
-    .memory-status { display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 7px 10px; background: var(--mint); color: #47765b; font-size: 10px; font-weight: 750; }
-    .memory-status.latch { background: var(--lemon); color: #87733a; }
     @media (max-width: 1050px) {
       .app-shell { grid-template-columns: 210px minmax(0,1fr); }
       .page-content { padding: 28px 24px 44px; }
@@ -241,8 +210,6 @@
       .topbar { height: 58px; padding: 0 16px; }
       .page-content { padding: 24px 15px 40px; }
       .dashboard-grid, .lower-grid, .two-column, .optimizer-grid { grid-template-columns: 1fr; }
-      .memory-grid { grid-template-columns: 1fr; }
-      .memory-stage { grid-template-columns: 110px minmax(120px,1fr) 110px; min-height: 280px; }
       .motor-card { min-height: 310px; }
       .page-heading { align-items: start; flex-direction: column; }
       .status-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -277,7 +244,6 @@
         <a class="nav-link" href="#optimizer" data-view="optimizer"><span class="nav-icon">↻</span>Regen optimizer</a>
         <a class="nav-link" href="#analytics" data-view="analytics"><span class="nav-icon">⌁</span>Live telemetry</a>
         <a class="nav-link" href="#safety" data-view="safety"><span class="nav-icon">♡</span>Safety & health</a>
-        <a class="nav-link" href="#memory" data-view="memory"><span class="nav-icon">◫</span>Memory cell</a>
         <a class="nav-link" href="/admin" data-view="admin"><span class="nav-icon">⌘</span>Admin portal</a>
       </nav>
       <div class="sidebar-note">
@@ -415,71 +381,6 @@
             <div class="card-heading"><h2>Recent samples</h2><span class="card-kicker">Newest first · up to 20 readings</span></div>
             <div class="table-wrap"><table><thead><tr><th>TIME</th><th>MODE</th><th>SPEED</th><th>VOLTAGE</th><th>CURRENT</th><th>TEMP</th><th>DUTY</th></tr></thead><tbody id="telemetry-table"><tr><td colspan="7" class="empty-state">Waiting for telemetry…</td></tr></tbody></table></div>
           </section>
-        </section>
-
-        <section class="page" id="page-memory" data-page="memory">
-          <div class="page-heading">
-            <div><p class="eyebrow">Digital logic</p><h1>Memory cell lab</h1><p class="subtitle">Toggle an enabled D latch and observe how it stores, holds, clears, or presets a bit.</p></div>
-            <button class="button outline" id="memory-reset" type="button">Reset cell</button>
-          </div>
-          <div class="memory-grid">
-            <section class="card card-pad">
-              <div class="card-heading"><h2>Latch inputs</h2><span class="memory-status latch" id="memory-status">Hold state</span></div>
-              <div class="memory-controls">
-                <div class="logic-row">
-                  <div class="logic-label"><strong>Data (D)</strong><span>Value to store</span></div>
-                  <button class="logic-toggle" id="memory-data" type="button" role="switch" aria-checked="false"><span>D = 0</span></button>
-                </div>
-                <div class="logic-row">
-                  <div class="logic-label"><strong>Enable (EN)</strong><span>Open latch when HIGH</span></div>
-                  <button class="logic-toggle" id="memory-enable" type="button" role="switch" aria-checked="false"><span>EN = 0</span></button>
-                </div>
-                <div class="logic-row">
-                  <div class="logic-label"><strong>Clear (CLR)</strong><span>Active-HIGH reset</span></div>
-                  <button class="logic-toggle" id="memory-clear" type="button" role="switch" aria-checked="false"><span>CLR = 0</span></button>
-                </div>
-                <div class="logic-row">
-                  <div class="logic-label"><strong>Preset (PRE)</strong><span>Active-HIGH set</span></div>
-                  <button class="logic-toggle" id="memory-preset" type="button" role="switch" aria-checked="false"><span>PRE = 0</span></button>
-                </div>
-              </div>
-              <div class="form-actions"><button class="button" id="memory-clock" type="button">Pulse EN</button><span class="form-error" id="memory-feedback" role="status"></span></div>
-              <div class="note">Asynchronous clear and preset take priority over normal enable behavior. When EN is LOW, the latch holds its stored value.</div>
-            </section>
-
-            <section class="card memory-stage" aria-label="D latch circuit visualization">
-              <div class="memory-source">
-                <div class="logic-chip"><span>Data D</span><strong id="memory-d-value">0</strong></div>
-                <div class="logic-chip"><span>Enable EN</span><strong id="memory-en-value">0</strong></div>
-              </div>
-              <div class="memory-cell">
-                <div class="memory-cell-inner"><span>Enabled D latch</span><strong id="memory-q-big">0</strong><small id="memory-mode-label">Holding 0</small></div>
-              </div>
-              <div class="memory-output">
-                <div class="logic-chip"><span>Stored Q</span><strong id="memory-q-value">0</strong></div>
-                <div class="logic-chip"><span>Complement Q̅</span><strong id="memory-qbar-value">1</strong></div>
-              </div>
-            </section>
-          </div>
-
-          <div class="lower-grid" style="margin-top:18px">
-            <section class="card card-pad">
-              <div class="card-heading"><h2>Operation trace</h2><span class="card-kicker">Most recent first</span></div>
-              <div class="memory-trace" id="memory-trace" aria-live="polite">
-                <div class="trace-row"><strong>#</strong><strong>D</strong><strong>EN</strong><strong>CLR</strong><strong>PRE</strong><strong>Q</strong></div>
-              </div>
-            </section>
-            <section class="card card-pad">
-              <div class="card-heading"><h2>Latch truth</h2><span class="card-kicker">Priority: CLR, PRE, EN</span></div>
-              <table class="truth-table"><thead><tr><th>CLR</th><th>PRE</th><th>EN</th><th>D</th><th>Q</th></tr></thead><tbody>
-                <tr><td>1</td><td>×</td><td>×</td><td>×</td><td>0</td></tr>
-                <tr><td>0</td><td>1</td><td>×</td><td>×</td><td>1</td></tr>
-                <tr><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
-                <tr><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
-                <tr><td>0</td><td>0</td><td>0</td><td>×</td><td>Hold</td></tr>
-              </tbody></table>
-            </section>
-          </div>
         </section>
 
         <section class="page" id="page-safety" data-page="safety">
